@@ -1,71 +1,61 @@
-package entities;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-import java.util.Objects;
-
-public class Student {
+public class Student{
+    private int final studentId;
+    private int final schoolId;
     private String name;
-    private String group;
-    private double gpa;
+    private final Map<String, ArrayList<integer>> gradesBySubject;
+    private final ArrayList<Teacher> allowedTeachers = new ArrayList<>();
 
-    public Student(String name, String group, double gpa){
+    public Student(int studentId, int schoolId; String name){
+        this.studentId = studentId;
+        this.schoolId = schooldId;
         this.name = name;
-        this.group = group;
-        this.gpa = gpa;
+        this.gradesBySubject = new HashMap<>();
+    }
+
+    public int getStudentId(){
+        return studentId;
+    }
+
+    public int getSchoolId(){
+        return schoolId;
     }
 
     public String getName(){
         return name;
     }
 
-    public String getGroup(){
-        return group;
-    }
-
-    public double getGpa(){
-        return gpa;
-    }
-
     public void setName(String name){
-        if(name != null && !name.trim().isEmpty()){
-            this.name = name;
+        this.name = name;
+    }
+
+    private void addGradeInternal(String subject, int grade) {
+        gradesBySubject.computeIfAbsent(subject, k -> new ArrayList<>()).add(grade);
+    }
+
+    public boolean enrollTeacher(Teacher teacher){
+        if(teacher == null) return false;
+
+        if(allowedTeachers.contains(teacher)) return false;
+
+        if(teacher.schoolId != this.getSchoolId()) return false;
+
+        allowedTeachers.add(teacher);
+        return true;
+    }
+
+    public boolean receiveGradeFromTeacher(Teacher teacher, int garde){
+        if(teacher == null) return false;
+
+        if(!allowedTeachers.contains(teacher)) {
+            System.out.println("Ошибка: этот преподаватель не ведёт студента по предмету " + teacher.getSubject);
+            return false;
         }
+
+        addGradeInternal(teacher.getSubject(), grade);
+        return true;
     }
 
-    public void setGroup(String group){
-        if(group != null && !group.trim().isEmpty()){
-            this.group = group;
-        }
-    }
-
-    public void setGpa(double gpa){
-        if(gpa >= 0 && gpa <= 4){
-            this.gpa = gpa;
-        }
-    }
-
-    @Override
-    public String toString(){
-        return "Student name='" + name + "', group='" + group + "', gpa=" + gpa;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-
-        if (obj == null || getClass() != obj.getClass()) return false;
-
-        Student student = (Student) obj;
-
-        return Double.compare(student.gpa, gpa) == 0 &&
-                name.equals(student.name) &&
-                group.equals(student.group);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + group.hashCode();
-        result = 31 * result + Double.hashCode(gpa);
-        return result;
-    }
-}
+};
