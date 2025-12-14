@@ -9,9 +9,11 @@ public class School {
 
     public School(int schoolId){
         this.schoolId = schoolId;
+        this.students = new ArrayList<>();
+        this.teachers = new ArrayList<>();
     }
 
-    public int getSchooId(){
+    public int getSchoolId(){
         return schoolId;
     }
 
@@ -55,11 +57,11 @@ public class School {
         }
 
         if(teacher.getSchoolId() != this.schoolId){
-            System.out.println("Ошибка: преподаватель работает в школе под номером " + teacher.getSchoolId);
+            System.out.println("Ошибка: преподаватель работает в школе под номером " + teacher.getSchoolId());
             return false;
         }
 
-        for (Teacher t : this.teacher){
+        for (Teacher t : this.teachers){
             if(t.getTeacherId() == teacher.getTeacherId()){
                 System.out.println("Ошибка: преподаватель с ID" + teacher.getTeacherId() + " уже существует");
                 return false;
@@ -98,4 +100,33 @@ public class School {
         }
         return null;
     }
+
+    public boolean assignStudentToTeacher(Student student, Teacher teacher) {
+        if (student == null || teacher == null) {
+            System.out.println("Ошибка: student/teacher не может быть null");
+            return false;
+        }
+
+        if (student.getSchoolId() != this.schoolId) {
+            System.out.println("Ошибка: студент из другой школы");
+            return false;
+        }
+        if (teacher.getSchoolId() != this.schoolId) {
+            System.out.println("Ошибка: преподаватель из другой школы");
+            return false;
+        }
+
+        boolean okTeacher = teacher.enrollStudent(student);
+        boolean okStudent = student.enrollTeacher(teacher);
+
+        if (!okTeacher || !okStudent) {
+            System.out.println("Ошибка: не удалось назначить студента преподавателю (возможно, уже назначен).");
+            return false;
+        }
+
+        System.out.println("Назначено: " + student.getName() + " -> " + teacher.getName()
+                + " (" + teacher.getSubject() + ")");
+        return true;
+    }
+
 }
