@@ -72,6 +72,10 @@ public class Student {
         return sum / grades.size();
     }
 
+    @Override
+    public String toString() {
+        return "Student{id=" + studentId + ", name='" + name + "', schoolId=" + schoolId + "}";
+    }
 
     @Override
     public boolean equals(Object o) {
