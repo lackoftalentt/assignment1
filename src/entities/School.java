@@ -4,129 +4,106 @@ import java.util.ArrayList;
 
 public class School {
     private final int schoolId;
-    private ArrayList<Student> students;
-    private ArrayList<Teacher> teachers;
+    private final ArrayList<Student> students;
+    private final ArrayList<Teacher> teachers;
 
-    public School(int schoolId){
+    public School(int schoolId) {
         this.schoolId = schoolId;
         this.students = new ArrayList<>();
         this.teachers = new ArrayList<>();
     }
 
-    public int getSchoolId(){
+    public int getSchoolId() {
         return schoolId;
     }
 
+    public ArrayList<Student> getSchoolStudents() {
+        return new ArrayList<>(students);
+    }
+
     public ArrayList<Teacher> getSchoolTeachers() {
-        return new ArrayList<>(this.teachers);
+        return new ArrayList<>(teachers);
     }
 
-    public ArrayList<Student> getSchoolStudents(){
-        return new ArrayList<>(this.students);
-    }
+    public boolean addStudentToSchool(Student student) {
+        if (student == null || student.getSchoolId() != schoolId) return false;
 
-    public boolean addStudentToSchool (Student student) {
-        if (student == null) {
-            System.out.println("Ошибка: студент не может быть null");
-            return false;
+        for (Student s : students) {
+            if (s.getId() == student.getId()) return false;
         }
 
-        if (student.getSchoolId() != this.schoolId) {
-            System.out.println("Ошибка: студент принадлежит другой школе (ID: "
-                    + student.getSchoolId() + ")");
-            return false;
-        }
-
-        for (Student s : this.students) {
-            if (s.getStudentId() == student.getStudentId()) {
-                System.out.println("Ошибка: студент с ID "
-                        + student.getStudentId() + " уже существует");
-                return false;
-            }
-        }
-
-        this.students.add(student);
-        System.out.println("Студент " + student.getName() + " добавлен в школу под номером " + this.schoolId);
+        students.add(student);
         return true;
     }
 
-    public boolean addTeacherToSchool (Teacher teacher){
-        if(teacher == null){
-            System.out.println("Ошибка: преподаватель не может быть null");
-            return false;
+    public boolean addTeacherToSchool(Teacher teacher) {
+        if (teacher == null || teacher.getSchoolId() != schoolId) return false;
+
+        for (Teacher t : teachers) {
+            if (t.getId() == teacher.getId()) return false;
         }
 
-        if(teacher.getSchoolId() != this.schoolId){
-            System.out.println("Ошибка: преподаватель работает в школе под номером " + teacher.getSchoolId());
-            return false;
-        }
-
-        for (Teacher t : this.teachers){
-            if(t.getTeacherId() == teacher.getTeacherId()){
-                System.out.println("Ошибка: преподаватель с ID" + teacher.getTeacherId() + " уже существует");
-                return false;
-            }
-        }
-
-        this.teachers.add(teacher);
-        System.out.println("Преподаватель " + teacher.getName() + " добавлен в школу под номером " + this.schoolId);
+        teachers.add(teacher);
         return true;
     }
 
-    public boolean removeStudent(Student student){
-        this.students.remove(student);
-        return true;
-    }
-
-    public boolean removeTeacher(Teacher teacher){
-        this.teachers.remove(teacher);
-        return true;
-    }
-
-    public Student findStudentById(int studentId){
-        for (Student s : this.students) {
-            if (s.getStudentId() == studentId) {
-                return s;
-            }
+    public Student findStudentById(int id) {
+        for (Student s : students) {
+            if (s.getId() == id) return s;
         }
         return null;
     }
 
-    public Teacher findTeacherById(int teacherId){
-        for(Teacher t : this.teachers){
-            if(t.getTeacherId() == teacherId){
-                return t;
-            }
+    public Teacher findTeacherById(int id) {
+        for (Teacher t : teachers) {
+            if (t.getId() == id) return t;
         }
         return null;
     }
 
     public boolean assignStudentToTeacher(Student student, Teacher teacher) {
-        if (student == null || teacher == null) {
-            System.out.println("Ошибка: student/teacher не может быть null");
-            return false;
-        }
+        if (student == null || teacher == null) return false;
+        if (student.getSchoolId() != schoolId || teacher.getSchoolId() != schoolId) return false;
 
-        if (student.getSchoolId() != this.schoolId) {
-            System.out.println("Ошибка: студент из другой школы");
-            return false;
-        }
-        if (teacher.getSchoolId() != this.schoolId) {
-            System.out.println("Ошибка: преподаватель из другой школы");
-            return false;
-        }
-
-        boolean okTeacher = teacher.enrollStudent(student);
-        boolean okStudent = student.enrollTeacher(teacher);
-
-        if (!okTeacher || !okStudent) {
-            System.out.println("Ошибка: не удалось назначить студента преподавателю (возможно, уже назначен).");
-            return false;
-        }
-
-        System.out.println("Назначено: " + student.getName() + " -> " + teacher.getName()
-                + " (" + teacher.getSubject() + ")");
-        return true;
+        return teacher.enrollStudent(student) && student.enrollTeacher(teacher);
     }
 
+    public ArrayList<Student> getStudentsWithHighGrades(String subject, int minGrade) {
+        ArrayList<Student> result = new ArrayList<>();
+        for (Student s : students) {
+            for (int grade : s.getGradesBySubject(subject)) {
+                if (grade >= minGrade) {
+                    result.add(s);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+    public ArrayList<Student> getStudentsWithLowGrades(String subject, int maxGrade) {
+        ArrayList<Student> result = new ArrayList<>();
+        for (Student s : students) {
+            for (int grade : s.getGradesBySubject(subject)) {
+                if (grade <= maxGrade) {
+                    result.add(s);
+                    break;
+                }
+            }
+        }
+        return result;
+    }
+
+
+    public ArrayList<Student> getStudentsSortedBySubjectAverage(String subject) {
+        ArrayList<Student> sorted = new ArrayList<>(students);
+        sorted.sort((a, b) -> Double.compare(b.getAverageBySubject(subject), a.getAverageBySubject(subject)));
+        return sorted;
+    }
+
+    public ArrayList<Student> getStudentsSortedBySubjectGradesCount(String subject) {
+        ArrayList<Student> sorted = new ArrayList<>(students);
+        sorted.sort((a, b) -> Integer.compare(b.getGradesBySubject(subject).size(), a.getGradesBySubject(subject).size()));
+        return sorted;
+    }
 }

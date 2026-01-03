@@ -43,6 +43,10 @@ public class SchoolMenuHandler {
         System.out.println("8) Показать оценки студента (все предметы)");
         System.out.println("9) Показать оценки студента по предмету");
         System.out.println("10) Показать оценки потока учителя (по его предмету)");
+        System.out.println("11) Фильтр: студенты с высокой оценкой по предмету");
+        System.out.println("12) Фильтр: студенты с низкой оценкой по предмету");
+        System.out.println("13) Сортировка: студенты по среднему баллу по предмету");
+        System.out.println("14) Сортировка: студенты по количеству оценок по предмету");
         System.out.println("0) Выход");
         System.out.print("Выбор: ");
     }
@@ -59,6 +63,7 @@ public class SchoolMenuHandler {
             case 8 -> showAllStudentGrades();
             case 9 -> showStudentGradesBySubject();
             case 10 -> showTeacherStreamGrades();
+
             default -> System.out.println("Неверный выбор.");
         }
     }
@@ -229,5 +234,35 @@ public class SchoolMenuHandler {
         }
 
         t.printStreamGrades();
+    }
+
+    private void filterLowGrades() {
+        System.out.print("Введите предмет: ");
+        String subject = scanner.nextLine();
+        System.out.print("Максимальная оценка: ");
+        int maxGrade = scanner.nextInt();
+        scanner.nextLine();
+
+        ArrayList<Student> result = school.getStudentsWithLowGrades(subject, maxGrade);
+        System.out.println("Студенты с оценкой <= " + maxGrade + " по " + subject + ":");
+        System.out.println(result);
+    }
+
+    private void sortBySubjectAverage() {
+        System.out.print("Введите предмет: ");
+        String subject = scanner.nextLine();
+
+        ArrayList<Student> result = school.getStudentsSortedBySubjectAverage(subject);
+        System.out.println("Студенты, отсортированные по средней оценке по " + subject + ":");
+        System.out.println(result);
+    }
+
+    private void sortBySubjectGradesCount() {
+        System.out.print("Введите предмет: ");
+        String subject = scanner.nextLine();
+
+        ArrayList<Student> result = school.getStudentsSortedBySubjectGradesCount(subject);
+        System.out.println("Студенты, отсортированные по количеству оценок по " + subject + ":");
+        System.out.println(result);
     }
 }

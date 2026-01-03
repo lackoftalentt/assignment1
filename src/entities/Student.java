@@ -4,43 +4,39 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Student {
-    private final int studentId;
-    private final int schoolId;
-    private String name;
-
+public class Student extends SchoolPerson {
     private final Map<String, ArrayList<Integer>> gradesBySubject;
-    private final ArrayList<Teacher> allowedTeachers = new ArrayList<>();
+    private final ArrayList<Teacher> allowedTeachers;
 
     public Student(int studentId, int schoolId, String name) {
-        this.studentId = studentId;
-        this.schoolId = schoolId;
-        this.name = name;
+        super(studentId, schoolId, name);
         this.gradesBySubject = new HashMap<>();
-    }
-
-    public int getStudentId() { return studentId; }
-    public int getSchoolId() { return schoolId; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    private void addGradeInternal(String subject, int grade) {
-        gradesBySubject.computeIfAbsent(subject, k -> new ArrayList<>()).add(grade);
+        this.allowedTeachers = new ArrayList<>();
     }
 
     public boolean enrollTeacher(Teacher teacher) {
         if (teacher == null) return false;
-        if (teacher.getSchoolId() != this.schoolId) return false;
+        if (teacher.getSchoolId() != schoolId) return false;
         if (allowedTeachers.contains(teacher)) return false;
+
         allowedTeachers.add(teacher);
         return true;
+    }
+
+    private void addGradeInternal(String subject, int grade) {
+        gradesBySubject
+                .computeIfAbsent(subject, k -> new ArrayList<>())
+                .add(grade);
     }
 
     public boolean receiveGradeFromTeacher(Teacher teacher, int grade) {
         if (teacher == null) return false;
 
         if (!allowedTeachers.contains(teacher)) {
-            System.out.println("Ошибка: этот преподаватель не ведёт студента " + this.getName() + " по предмету " + teacher.getSubject());
+            System.out.println(
+                    "Ошибка: преподаватель не ведёт студента " +
+                            name + " по предмету " + teacher.getSubject()
+            );
             return false;
         }
 
@@ -50,7 +46,7 @@ public class Student {
 
     public ArrayList<Integer> getGradesBySubject(String subject) {
         ArrayList<Integer> grades = gradesBySubject.get(subject);
-        return (grades == null) ? new ArrayList<>() : new ArrayList<>(grades);
+        return grades == null ? new ArrayList<>() : new ArrayList<>(grades);
     }
 
     public void printAllGrades() {
@@ -58,6 +54,7 @@ public class Student {
             System.out.println("Оценок нет: " + name);
             return;
         }
+
         for (var entry : gradesBySubject.entrySet()) {
             System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
@@ -73,19 +70,26 @@ public class Student {
     }
 
     @Override
+    public String getRole() {
+        return "Student";
+    }
+
+    @Override
     public String toString() {
-        return "Student{id=" + studentId + ", name='" + name + "', schoolId=" + schoolId + "}";
+        return "Student{id=" + id +
+                ", name='" + name + '\'' +
+                ", schoolId=" + schoolId + '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Student other)) return false;
-        return this.studentId == other.studentId;
+        return id == other.id;
     }
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(studentId);
+        return Integer.hashCode(id);
     }
 }
