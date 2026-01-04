@@ -53,17 +53,20 @@ public class SchoolMenuHandler {
 
     private void handleChoice(int choice) {
         switch (choice) {
-            case 1 -> addStudent();
-            case 2 -> addTeacher();
-            case 3 -> assignStudentToTeacher();
-            case 4 -> assignGrade();
-            case 5 -> showAllStudents();
-            case 6 -> showAllTeachers();
+            case 1 -> { addStudent(); printStudentsList(); }
+            case 2 -> { addTeacher(); printTeachersList(); }
+            case 3 -> { assignStudentToTeacher(); printStudentsList(); printTeachersList(); }
+            case 4 -> { assignGrade(); printStudentsList(); }
+            case 5 -> printStudentsList();
+            case 6 -> printTeachersList();
             case 7 -> compareStudents();
             case 8 -> showAllStudentGrades();
             case 9 -> showStudentGradesBySubject();
             case 10 -> showTeacherStreamGrades();
-
+            case 11 -> filterHighGrades();
+            case 12 -> filterLowGrades();
+            case 13 -> sortBySubjectAverage();
+            case 14 -> sortBySubjectGradesCount();
             default -> System.out.println("Неверный выбор.");
         }
     }
@@ -98,14 +101,10 @@ public class SchoolMenuHandler {
     }
 
     private void assignStudentToTeacher() {
-        ArrayList<Student> students = school.getSchoolStudents();
-        System.out.println(students);
         System.out.print("studentId: ");
         int studentId = scanner.nextInt();
         scanner.nextLine();
 
-        ArrayList<Teacher> teachers = school.getSchoolTeachers();
-        System.out.println(teachers);
         System.out.print("teacherId: ");
         int teacherId = scanner.nextInt();
         scanner.nextLine();
@@ -127,14 +126,10 @@ public class SchoolMenuHandler {
     }
 
     private void assignGrade() {
-        ArrayList<Teacher> teachers = school.getSchoolTeachers();
-        System.out.println(teachers);
         System.out.print("teacherId: ");
         int teacherId = scanner.nextInt();
         scanner.nextLine();
 
-        ArrayList<Student> students = school.getSchoolStudents();
-        System.out.println(students);
         System.out.print("studentId: ");
         int studentId = scanner.nextInt();
         scanner.nextLine();
@@ -155,18 +150,7 @@ public class SchoolMenuHandler {
         System.out.println("Оценка поставлена успешно.");
     }
 
-    private void showAllStudents() {
-        System.out.println(school.getSchoolStudents());
-    }
-
-    private void showAllTeachers() {
-        System.out.println(school.getSchoolTeachers());
-    }
-
     private void compareStudents() {
-        ArrayList<Student> students = school.getSchoolStudents();
-        System.out.println(students);
-
         System.out.print("studentId #1: ");
         int id1 = scanner.nextInt();
         scanner.nextLine();
@@ -187,8 +171,6 @@ public class SchoolMenuHandler {
     }
 
     private void showAllStudentGrades() {
-        ArrayList<Student> students = school.getSchoolStudents();
-        System.out.println(students);
         System.out.print("studentId: ");
         int studentId = scanner.nextInt();
         scanner.nextLine();
@@ -202,8 +184,6 @@ public class SchoolMenuHandler {
     }
 
     private void showStudentGradesBySubject() {
-        ArrayList<Student> students = school.getSchoolStudents();
-        System.out.println(students);
         System.out.print("studentId: ");
         int studentId = scanner.nextInt();
         scanner.nextLine();
@@ -221,8 +201,6 @@ public class SchoolMenuHandler {
     }
 
     private void showTeacherStreamGrades() {
-        ArrayList<Teacher> teachers = school.getSchoolTeachers();
-        System.out.println(teachers);
         System.out.print("teacherId: ");
         int teacherId = scanner.nextInt();
         scanner.nextLine();
@@ -234,6 +212,18 @@ public class SchoolMenuHandler {
         }
 
         t.printStreamGrades();
+    }
+
+    private void filterHighGrades() {
+        System.out.print("Введите предмет: ");
+        String subject = scanner.nextLine();
+        System.out.print("Минимальная оценка: ");
+        int minGrade = scanner.nextInt();
+        scanner.nextLine();
+
+        ArrayList<Student> result = school.getStudentsWithHighGrades(subject, minGrade);
+        System.out.println("Студенты с оценкой >= " + minGrade + " по " + subject + ":");
+        System.out.println(result);
     }
 
     private void filterLowGrades() {
@@ -264,5 +254,22 @@ public class SchoolMenuHandler {
         ArrayList<Student> result = school.getStudentsSortedBySubjectGradesCount(subject);
         System.out.println("Студенты, отсортированные по количеству оценок по " + subject + ":");
         System.out.println(result);
+    }
+
+
+    private void printStudentsList() {
+        System.out.println("\n=== Список студентов ===");
+        for (Student s : school.getSchoolStudents()) {
+            System.out.printf("ID: %d | Name: %s",
+                    s.getId(), s.getName());
+        }
+    }
+
+    private void printTeachersList() {
+        System.out.println("\n=== Список преподавателей ===");
+        for (Teacher t : school.getSchoolTeachers()) {
+            System.out.printf("ID: %d | Name: %s | Subject: %s",
+                    t.getId(), t.getName(), t.getSubject());
+        }
     }
 }
